@@ -62,11 +62,23 @@ This is for reconstruction. `cat` back to a `.tar.gz` and decompress.
 ### Step 5: Export
 
 ```
+mkdir -p dumps
 for table in `cat table-names.txt`; 
 do 
     echo Dumping $table
-    pg_dump -c -h localhost -U postgres -t $table postgres > dumps/$table.dump
+    pg_dump -h localhost -U postgres -t $table postgres > dumps/$table.dump
 done
+```
+
+### Step 6: Split the dumps
+
+To store them in GH, we need them to be smaller. They're compressed, then split.
+
+```
+tar cvzf dumps.tar.gz dumps/
+rm -rf dumps
+mkdir dumps
+split -b 40M dumps.tar.gz dumps/dump.
 ```
 
 ### Step 6: Container build

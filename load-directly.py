@@ -41,7 +41,7 @@ def main():
         cursor = connection.cursor()
         tablename = Path(txtfile).stem
         print(f'Dropping {tablename}')
-        cursor.execute(f"DROP TABLE IF EXISTS {make_tablename(tablename)}")
+        cursor.execute(f"DROP TABLE IF EXISTS IF EXISTS {make_tablename(tablename)}")
 
     for txtfile in files:
         tablename = Path(txtfile).stem
