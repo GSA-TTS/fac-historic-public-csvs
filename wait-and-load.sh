@@ -35,7 +35,19 @@ then
     psql -o /dev/null -q -h $PG_HOST -U $PG_USER -d $PG_DATABASE < /create-views.sql 
 fi
 
-# for table in `cat /table-names.txt` ;
-# do
-#     psql -h $PG_HOST -U $PG_USER -d $PG_DATABASE -c "select count(*) from \"${table}\""
-# done
+
+username=workbook.generator
+is_user_present=$(psql -h $PG_HOST -U $PG_USER -d $PG_DATABASE -AXqtc "select exists(select 1 from public.auth_user where username='${username}')")
+
+echo ${username} exists check: $is_user_present
+
+if [ $is_user_present == "f" ];
+then
+    pass=`cat /proc/sys/kernel/random/uuid | sed 's/[-]//g' | head -c 32; echo;`
+    psql -o /dev/null -q -h $PG_HOST -U $PG_USER -d $PG_DATABASE <<-EOSQL
+    INSERT INTO public.auth_user
+    (id, "password", last_login, is_superuser, username, first_name, last_name, email, is_staff, is_active, date_joined)
+    VALUES(0, '${pass}', '2023-08-12 00:00:00.000', false, '${username}', 'Workbook', 'Generator', 'workbook.generator@test.fac.gov', false, false, '2023-08-12 00:00:00.000');
+    echo Created user ${username}
+EOSQL
+fi
