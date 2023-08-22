@@ -46,8 +46,8 @@ then
     pass=`cat /proc/sys/kernel/random/uuid | sed 's/[-]//g' | head -c 32; echo;`
     psql -o /dev/null -q -h $PG_HOST -U $PG_USER -d $PG_DATABASE <<-EOSQL
     INSERT INTO public.auth_user
-    (id, "password", last_login, is_superuser, username, first_name, last_name, email, is_staff, is_active, date_joined)
-    VALUES(0, '${pass}', '2023-08-12 00:00:00.000', false, '${username}', 'Workbook', 'Generator', 'workbook.generator@test.fac.gov', false, false, '2023-08-12 00:00:00.000');
+    ("password", last_login, is_superuser, username, first_name, last_name, email, is_staff, is_active, date_joined)
+    VALUES('${pass}', '2023-08-12 00:00:00.000', false, '${username}', 'Workbook', 'Generator', 'workbook.generator@test.fac.gov', false, false, '2023-08-12 00:00:00.000');
     echo Created user ${username}
 EOSQL
 fi
