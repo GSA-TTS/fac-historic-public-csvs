@@ -32,7 +32,7 @@ then
     for file in "${prefix}"/dumps/*;
     do
         echo Restoring "$file"
-        psql "$DATABASE_URL" -q < "${prefix}"/dumps/"$file"
+        psql "$DATABASE_URL" -q < "$file"
         sleep 0.1
     done
     psql "$DATABASE_URL" -q < "${prefix}"/create-views.sql
