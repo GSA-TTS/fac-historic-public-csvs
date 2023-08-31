@@ -6,6 +6,7 @@ RUN apt-get update \
 
 # Copy the split files in
 COPY dumps/* /dumps/
+ADD create-dumps.sh /create-dumps.sh
 RUN /create-dumps.sh
 
 # Copy in the table names

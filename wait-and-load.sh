@@ -23,19 +23,19 @@ if  [ $result -ne 0 ];
 then
     echo "Data already loaded; dropping tables."
     for table in $(cat "${prefix}"/table-names.txt) ;
-    do 
+    do
         echo "Dropping $table"
         psql "$DATABASE_URL" -q -c "DROP TABLE IF EXISTS ${table} cascade;"
     done
     echo Loading historic data tables.
 
     for file in "${prefix}"/dumps/*;
-    do 
+    do
         echo Restoring "$file"
-        psql "$DATABASE_URL" -q < "${prefix}"/dumps/"$file" 
+        psql "$DATABASE_URL" -q < "${prefix}"/dumps/"$file"
         sleep 0.1
     done
-    psql "$DATABASE_URL" -q < "${prefix}"/create-views.sql 
+    psql "$DATABASE_URL" -q < "${prefix}"/create-views.sql
 fi
 
 # username=workbook.generator
