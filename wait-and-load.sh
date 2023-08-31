@@ -1,18 +1,20 @@
 #!/bin/bash
+directory=$(dirname "$0")
+prefix=${directory%/}
 RETRIES=60
 # PG_HOST=db
 # PG_USER=postgres
 # PG_DATABASE=postgres
 
 # -h $PG_HOST -U $PG_USER -d $PG_DATABASE
-until psql $DATABASE_URL -c "select 1" > /dev/null 2>&1 || [ $RETRIES -eq 0 ]; do
+until psql "$DATABASE_URL" -c "select 1" > /dev/null 2>&1 || [ $RETRIES -eq 0 ]; do
   echo "Waiting for postgres server, $((RETRIES--)) remaining attempts..."
   sleep 3
 done
 
 echo Done waiting for Postgres
 
-psql $DATABASE_URL -c "SELECT 'public.census_ueis22'::regclass"
+psql "$DATABASE_URL" -c "SELECT 'public.census_ueis22'::regclass"
 result=$?
 echo "Table exists result: $result"
 
@@ -20,20 +22,20 @@ echo "Table exists result: $result"
 if  [ $result -ne 0 ];
 then
     echo "Data already loaded; dropping tables."
-    for table in `cat /table-names.txt` ;
+    for table in $(cat "${prefix}"/table-names.txt) ;
     do 
-        echo Dropping $table
-        psql $DATABASE_URL -q -c "DROP TABLE IF EXISTS ${table} cascade;"
+        echo "Dropping $table"
+        psql "$DATABASE_URL" -q -c "DROP TABLE IF EXISTS ${table} cascade;"
     done
     echo Loading historic data tables.
 
-    for file in `ls /dumps` ;
+    for file in "${prefix}"/dumps/*;
     do 
-        echo Restoring $file
-        psql $DATABASE_URL -q < /dumps/$file 
+        echo Restoring "$file"
+        psql "$DATABASE_URL" -q < "${prefix}"/dumps/"$file" 
         sleep 0.1
     done
-    psql $DATABASE_URL -q < /create-views.sql 
+    psql "$DATABASE_URL" -q < "${prefix}"/create-views.sql 
 fi
 
 # username=workbook.generator
